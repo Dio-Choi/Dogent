@@ -19,6 +19,17 @@ Document-driven AI development system. Write specs in your vault, trigger a run,
 
 You only edit documents. The system handles the rest.
 
+## Workspace
+
+This repo is a pnpm workspace. After cloning:
+
+```bash
+pnpm install            # installs all packages
+pnpm vault:build        # build the Obsidian plugin
+pnpm studio:dev         # run the desktop app (dev mode)
+pnpm studio:build       # package the desktop app
+```
+
 ## Status
 
 Early development. The Vault plugin is the first component and is functional.

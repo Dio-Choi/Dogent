@@ -19,17 +19,19 @@ Desktop app for running document-driven AI projects. Part of the [Dogent](../) s
 
 ## Develop
 
+From the monorepo root:
+
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm studio:dev
 ```
 
-Opens a Vite dev server on :5173 and launches Electron pointed at it. Hot-reload works for the renderer; for `electron/` changes, restart with `Ctrl+C` and `npm run dev` again.
+Opens a Vite dev server on :5173 and launches Electron pointed at it. Hot-reload works for the renderer; for `electron/` changes, restart with `Ctrl+C` and `pnpm studio:dev` again.
 
 ## Build
 
 ```bash
-npm run build
+pnpm studio:build
 ```
 
 Builds the renderer with Vite and packages the app with electron-builder.

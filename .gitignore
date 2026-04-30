@@ -3,6 +3,10 @@ node_modules/
 .DS_Store
 data.json
 
+# Lockfiles from other package managers (pnpm is the source of truth)
+package-lock.json
+yarn.lock
+
 # Build outputs
 vault/main.js
 studio/dist/

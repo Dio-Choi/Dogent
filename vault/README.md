@@ -22,9 +22,11 @@ Obsidian plugin that syncs your vault to your own storage. Part of the [Dogent](
 
 ## Building
 
+From the monorepo root:
+
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm --filter dogent-vault build
 ```
 
 The output is `main.js`. Together with `manifest.json`, copy these into `<your-vault>/.obsidian/plugins/dogent-vault/` to install manually.

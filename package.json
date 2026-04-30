@@ -1,0 +1,17 @@
+{
+  "name": "dogent",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Dogent — document-driven AI development system. Monorepo root.",
+  "scripts": {
+    "vault:dev": "pnpm --filter dogent-vault dev",
+    "vault:build": "pnpm --filter dogent-vault build",
+    "studio:dev": "pnpm --filter dogent-studio dev",
+    "studio:build": "pnpm --filter dogent-studio build",
+    "typecheck": "pnpm --recursive --if-present typecheck"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["electron", "esbuild"]
+  },
+  "packageManager": "pnpm@10.26.0"
+}
