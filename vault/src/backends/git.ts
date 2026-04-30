@@ -1,7 +1,7 @@
 import git from "isomorphic-git";
-import http from "isomorphic-git/http/web";
 import LightningFS from "@isomorphic-git/lightning-fs";
 import { FileEntry, GitConfig, StorageBackend } from "../types";
+import { obsidianGitHttp as http } from "./git-http";
 
 export class GitBackend implements StorageBackend {
   readonly kind = "git" as const;

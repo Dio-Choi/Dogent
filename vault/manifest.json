@@ -1,7 +1,7 @@
 {
   "id": "dogent-vault",
   "name": "Dogent Vault",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "1.5.0",
   "description": "Sync your vault to your own storage (S3, Git, Google Drive). Part of the Dogent document-driven AI system.",
   "author": "dio",

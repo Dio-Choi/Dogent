@@ -1,6 +1,6 @@
 {
   "name": "dogent-vault",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Dogent Vault — sync your Obsidian vault to your own S3, Git, or Google Drive.",
   "main": "main.js",
   "scripts": {
