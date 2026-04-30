@@ -1,0 +1,46 @@
+name: Release Vault plugin
+
+on:
+  push:
+    tags:
+      - "vault-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install
+        working-directory: vault
+        run: npm ci
+
+      - name: Build
+        working-directory: vault
+        run: npm run build
+
+      - name: Verify manifest version matches tag
+        working-directory: vault
+        run: |
+          TAG="${GITHUB_REF_NAME#vault-v}"
+          MANIFEST_VERSION=$(node -p "require('./manifest.json').version")
+          if [ "$TAG" != "$MANIFEST_VERSION" ]; then
+            echo "Tag ($TAG) does not match manifest version ($MANIFEST_VERSION)"
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Dogent Vault ${GITHUB_REF_NAME#vault-}" \
+            --notes "Automated release for Dogent Vault ${GITHUB_REF_NAME#vault-v}." \
+            vault/main.js vault/manifest.json vault/versions.json

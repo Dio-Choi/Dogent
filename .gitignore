@@ -1,0 +1,13 @@
+node_modules/
+*.js.map
+.DS_Store
+data.json
+
+# Build outputs
+vault/main.js
+studio/dist/
+engine/dist/
+
+# Editor
+.vscode/
+.idea/

@@ -1,0 +1,28 @@
+{
+  "name": "dogent-vault",
+  "version": "0.1.0",
+  "description": "Dogent Vault — sync your Obsidian vault to your own S3, Git, or Google Drive.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+  },
+  "keywords": [],
+  "author": "dio",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "builtin-modules": "3.3.0",
+    "esbuild": "0.20.0",
+    "obsidian": "latest",
+    "tslib": "2.6.2",
+    "typescript": "5.3.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@isomorphic-git/lightning-fs": "^4.6.2",
+    "isomorphic-git": "^1.37.6"
+  }
+}
