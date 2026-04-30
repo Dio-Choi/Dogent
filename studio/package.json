@@ -1,0 +1,43 @@
+{
+  "name": "dogent-studio",
+  "version": "0.1.0",
+  "description": "Dogent Studio — desktop app for running document-driven AI projects.",
+  "main": "dist/electron/electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k -n vite,electron -c blue,green \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite",
+    "dev:electron": "wait-on tcp:5173 && tsc -p tsconfig.electron.json && cross-env NODE_ENV=development electron .",
+    "build": "tsc -p tsconfig.electron.json && vite build && electron-builder",
+    "build:no-package": "tsc -p tsconfig.electron.json && vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.electron.json --noEmit"
+  },
+  "author": "dio",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@isomorphic-git/lightning-fs": "^4.6.2",
+    "isomorphic-git": "^1.37.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "build": {
+    "appId": "io.dogent.studio",
+    "productName": "Dogent Studio",
+    "files": ["dist/**/*", "package.json"],
+    "mac": { "category": "public.app-category.developer-tools" }
+  }
+}
