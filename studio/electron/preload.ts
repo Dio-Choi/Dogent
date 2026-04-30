@@ -15,10 +15,6 @@ const api = {
   dialog: {
     pickDirectory: (): Promise<string | null> => ipcRenderer.invoke("dialog:pickDirectory"),
   },
-  vault: {
-    download: (p: ProjectRecord): Promise<{ fileCount: number; localPath: string }> =>
-      ipcRenderer.invoke("vault:download", p),
-  },
   claude: {
     run: (opts: {
       apiKey: string;
@@ -46,6 +42,10 @@ const api = {
     readDir: (dir: string): Promise<{ name: string; isDirectory: boolean }[]> =>
       ipcRenderer.invoke("fs:readDir", dir),
     readFile: (p: string): Promise<string | null> => ipcRenderer.invoke("fs:readFile", p),
+  },
+  project: {
+    scaffold: (rootPath: string): Promise<{ vault: string; code: string }> =>
+      ipcRenderer.invoke("project:scaffold", rootPath),
   },
 };
 

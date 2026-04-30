@@ -28,16 +28,13 @@ export function ProjectList({ projects, onOpen, onUpsert }: Props): JSX.Element 
           {projects.map((p) => (
             <div key={p.id} className="project-tile" onClick={() => onOpen(p.id)}>
               <h3>{p.name}</h3>
-              <div className="meta">
-                <span className="tag">{p.backend.kind}</span>
-                {p.lastPulledAt && (
-                  <span style={{ marginLeft: 8 }}>
-                    pulled {new Date(p.lastPulledAt).toLocaleString()}
-                  </span>
-                )}
-              </div>
+              {p.deploy.target !== "none" && (
+                <div className="meta">
+                  <span className="tag">{p.deploy.target}</span>
+                </div>
+              )}
               <div className="meta" style={{ marginTop: 6, fontFamily: "monospace", fontSize: 11 }}>
-                {p.localPath}
+                {p.rootPath}
               </div>
             </div>
           ))}

@@ -1,6 +1,6 @@
 import git from "isomorphic-git";
 import LightningFS from "@isomorphic-git/lightning-fs";
-import { FileEntry, GitConfig, StorageBackend } from "../types";
+import { DOGENT_VAULT_SUBDIR, FileEntry, GitConfig, StorageBackend } from "../types";
 import { obsidianGitHttp as http } from "./git-http";
 
 export class GitBackend implements StorageBackend {
@@ -171,11 +171,7 @@ export class GitBackend implements StorageBackend {
   }
 
   private normalizedSubdir(): string {
-    let p = this.config.pathInRepo.trim();
-    if (p === "" || p === "/") return "";
-    if (p.startsWith("/")) p = p.slice(1);
-    if (p.endsWith("/")) p = p.slice(0, -1);
-    return p;
+    return DOGENT_VAULT_SUBDIR;
   }
 }
 

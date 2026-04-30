@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ProjectRecord, Backend, BackendKind, DeployTarget } from "@shared/project";
+import type { ProjectRecord, DeployTarget } from "@shared/project";
 
 interface Props {
   initial?: ProjectRecord;
@@ -11,26 +11,45 @@ interface Props {
 export function ProjectFormModal({ initial, onSave, onCancel, onDelete }: Props): JSX.Element {
   const [name, setName] = useState(initial?.name ?? "");
   const [vaultId, setVaultId] = useState(initial?.vaultId ?? "");
-  const [localPath, setLocalPath] = useState(initial?.localPath ?? "");
-  const [backend, setBackend] = useState<Backend>(initial?.backend ?? blankBackend("s3"));
+  const [rootPath, setRootPath] = useState(initial?.rootPath ?? "");
   const [deployTarget, setDeployTarget] = useState<DeployTarget>(initial?.deploy.target ?? "none");
   const [vercelProject, setVercelProject] = useState(initial?.deploy.vercelProject ?? "");
   const [awsBucket, setAwsBucket] = useState(initial?.deploy.awsBucket ?? "");
   const [awsRegion, setAwsRegion] = useState(initial?.deploy.awsRegion ?? "us-east-1");
 
-  const pickDir = async (): Promise<void> => {
+  const pickRoot = async (): Promise<void> => {
     const dir = await window.dogent.dialog.pickDirectory();
-    if (dir) setLocalPath(dir);
+    if (!dir) return;
+    setRootPath(dir);
+    await tryDetectVaultId(dir);
+  };
+
+  const tryDetectVaultId = async (root: string): Promise<void> => {
+    const candidate = `${root}/vault/.obsidian/plugins/dogent-vault/data.json`;
+    const raw = await window.dogent.fs.readFile(candidate);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as { vaultId?: string };
+      if (parsed.vaultId) setVaultId(parsed.vaultId);
+    } catch {
+      // ignore
+    }
   };
 
   const save = async (): Promise<void> => {
-    if (!name.trim() || !localPath.trim()) return;
+    if (!name.trim() || !rootPath.trim()) return;
+
+    // Ensure <root>/vault and <root>/code exist
+    await window.dogent.project.scaffold(rootPath.trim());
+
+    // Re-detect vault ID after scaffold (Obsidian plugin may write data.json after first launch)
+    if (!vaultId) await tryDetectVaultId(rootPath.trim());
+
     const record: ProjectRecord = {
       id: initial?.id ?? crypto.randomUUID(),
       name: name.trim(),
       vaultId: vaultId.trim(),
-      backend,
-      localPath: localPath.trim(),
+      rootPath: rootPath.trim(),
       deploy: {
         target: deployTarget,
         vercelProject: vercelProject.trim() || undefined,
@@ -38,7 +57,6 @@ export function ProjectFormModal({ initial, onSave, onCancel, onDelete }: Props)
         awsRegion: awsRegion.trim() || undefined,
       },
       createdAt: initial?.createdAt ?? new Date().toISOString(),
-      lastPulledAt: initial?.lastPulledAt,
     };
     await onSave(record);
   };
@@ -54,31 +72,22 @@ export function ProjectFormModal({ initial, onSave, onCancel, onDelete }: Props)
         </div>
 
         <div className="field">
-          <div className="label">Vault ID (optional, from Obsidian plugin settings)</div>
-          <input value={vaultId} onChange={(e) => setVaultId(e.target.value)} placeholder="UUID" />
-        </div>
-
-        <div className="field">
-          <div className="label">Local working directory</div>
+          <div className="label">Project folder</div>
+          <p style={{ color: "var(--text-dim)", fontSize: 12, margin: "0 0 6px" }}>
+            A <code>vault/</code> and <code>code/</code> subfolder will be created here. Open <code>vault/</code> as your Obsidian vault.
+          </p>
           <div className="row">
-            <input value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/path/to/folder" />
-            <button onClick={pickDir}>Pick</button>
+            <input value={rootPath} onChange={(e) => setRootPath(e.target.value)} placeholder="/path/to/project-root" />
+            <button onClick={pickRoot}>Pick</button>
           </div>
         </div>
 
-        <div className="field">
-          <div className="label">Vault backend</div>
-          <select
-            value={backend.kind}
-            onChange={(e) => setBackend(blankBackend(e.target.value as BackendKind))}
-          >
-            <option value="s3">Amazon S3 (or compatible)</option>
-            <option value="git">Git (read-only via clone — coming soon)</option>
-            <option value="gdrive">Google Drive (coming soon)</option>
-          </select>
-        </div>
-
-        {backend.kind === "s3" && <S3Fields backend={backend} setBackend={setBackend} />}
+        {vaultId && (
+          <div className="field">
+            <div className="label">Detected Vault ID</div>
+            <input value={vaultId} readOnly style={{ fontFamily: "monospace", fontSize: 11, opacity: 0.7 }} />
+          </div>
+        )}
 
         <h3 style={{ marginTop: 18 }}>Deploy</h3>
         <div className="field">
@@ -121,65 +130,4 @@ export function ProjectFormModal({ initial, onSave, onCancel, onDelete }: Props)
       </div>
     </div>
   );
-}
-
-function S3Fields({
-  backend,
-  setBackend,
-}: {
-  backend: Backend & { kind: "s3" };
-  setBackend: (b: Backend) => void;
-}): JSX.Element {
-  const upd = (k: keyof typeof backend, v: string): void => {
-    setBackend({ ...backend, [k]: v });
-  };
-  return (
-    <>
-      <div className="field">
-        <div className="label">Access Key ID</div>
-        <input value={backend.accessKeyId} onChange={(e) => upd("accessKeyId", e.target.value)} />
-      </div>
-      <div className="field">
-        <div className="label">Secret Access Key</div>
-        <input
-          type="password"
-          value={backend.secretAccessKey}
-          onChange={(e) => upd("secretAccessKey", e.target.value)}
-        />
-      </div>
-      <div className="field">
-        <div className="label">Region</div>
-        <input value={backend.region} onChange={(e) => upd("region", e.target.value)} />
-      </div>
-      <div className="field">
-        <div className="label">Bucket</div>
-        <input value={backend.bucket} onChange={(e) => upd("bucket", e.target.value)} />
-      </div>
-      <div className="field">
-        <div className="label">Prefix</div>
-        <input value={backend.prefix} onChange={(e) => upd("prefix", e.target.value)} />
-      </div>
-      <div className="field">
-        <div className="label">Endpoint (optional)</div>
-        <input value={backend.endpoint ?? ""} onChange={(e) => upd("endpoint", e.target.value)} />
-      </div>
-    </>
-  );
-}
-
-function blankBackend(kind: BackendKind): Backend {
-  if (kind === "s3") {
-    return {
-      kind: "s3",
-      accessKeyId: "",
-      secretAccessKey: "",
-      region: "us-east-1",
-      bucket: "",
-      prefix: "",
-    };
-  }
-  if (kind === "git") {
-    return { kind: "git", repoUrl: "", branch: "main", pathInRepo: "", token: "" };
-  }
-  return { kind: "gdrive", folderId: "" };
 }

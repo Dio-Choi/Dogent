@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ProjectRecord } from "@shared/project";
+import { codePath } from "@shared/project";
 
 interface Props {
   project: ProjectRecord;
@@ -33,7 +34,7 @@ export function TestTab({ project }: Props): JSX.Element {
     });
 
     try {
-      const res = await window.dogent.shell.run({ cwd: project.localPath, command: cmd, args });
+      const res = await window.dogent.shell.run({ cwd: codePath(project), command: cmd, args });
       setExitCode(res.exitCode);
     } catch (e) {
       setOutput((prev) => prev + `\n[ERROR] ${(e as Error).message}\n`);

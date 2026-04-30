@@ -4,9 +4,10 @@ import type { SecretsShape } from "@shared/project";
 interface Props {
   secrets: SecretsShape;
   onSave: (s: SecretsShape) => Promise<void>;
+  onBack: () => void;
 }
 
-export function Settings({ secrets, onSave }: Props): JSX.Element {
+export function Settings({ secrets, onSave, onBack }: Props): JSX.Element {
   const [draft, setDraft] = useState<SecretsShape>(secrets);
   const [saved, setSaved] = useState(false);
 
@@ -25,6 +26,9 @@ export function Settings({ secrets, onSave }: Props): JSX.Element {
 
   return (
     <div style={{ maxWidth: 720 }}>
+      <div className="row" style={{ marginBottom: 14 }}>
+        <button className="ghost" onClick={onBack}>← Back</button>
+      </div>
       <h2 style={{ marginTop: 0 }}>Settings</h2>
       <p style={{ color: "var(--text-dim)" }}>
         Stored locally and encrypted with the system keychain when available.

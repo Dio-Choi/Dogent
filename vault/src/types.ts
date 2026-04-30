@@ -11,13 +11,14 @@ export interface StorageBackend {
   pull(): Promise<FileEntry[]>;
 }
 
+export const DOGENT_VAULT_SUBDIR = "vault";
+
 export interface S3Config {
   kind: "s3";
   accessKeyId: string;
   secretAccessKey: string;
   region: string;
   bucket: string;
-  prefix: string;
   endpoint?: string;
 }
 
@@ -25,7 +26,6 @@ export interface GitConfig {
   kind: "git";
   repoUrl: string;
   branch: string;
-  pathInRepo: string;
   token: string;
   authorName: string;
   authorEmail: string;

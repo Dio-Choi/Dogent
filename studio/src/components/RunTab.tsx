@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ProjectRecord, SecretsShape } from "@shared/project";
+import { codePath, vaultPath } from "@shared/project";
 
 interface Props {
   project: ProjectRecord;
@@ -13,11 +14,14 @@ export function RunTab({ project, secrets }: Props): JSX.Element {
   const [conventions, setConventions] = useState("");
   const outRef = useRef<HTMLDivElement>(null);
 
+  const vault = vaultPath(project);
+  const code = codePath(project);
+
   useEffect(() => {
     void window.dogent.fs
-      .readFile(`${project.localPath}/.dogent/conventions.md`)
+      .readFile(`${vault}/.dogent/conventions.md`)
       .then((c) => setConventions(c ?? ""));
-  }, [project.localPath]);
+  }, [vault]);
 
   useEffect(() => {
     if (outRef.current) outRef.current.scrollTop = outRef.current.scrollHeight;
@@ -38,12 +42,12 @@ export function RunTab({ project, secrets }: Props): JSX.Element {
     });
 
     try {
-      const system = buildSystemPrompt(project, conventions);
+      const system = buildSystemPrompt(project, vault, code, conventions);
       await window.dogent.claude.run({
         apiKey: secrets.anthropicApiKey,
         model: "claude-sonnet-4-6",
         system,
-        cwd: project.localPath,
+        cwd: code,
         messages: [{ role: "user", content: prompt }],
       });
     } catch (e) {
@@ -69,9 +73,11 @@ export function RunTab({ project, secrets }: Props): JSX.Element {
             <button className="primary" onClick={run} disabled={running}>
               {running ? "Running..." : "Run"}
             </button>
-            <span style={{ color: "var(--text-dim)", fontSize: 12 }}>
-              Working dir: {project.localPath}
-            </span>
+          </div>
+          <div style={{ color: "var(--text-dim)", fontSize: 11, fontFamily: "monospace" }}>
+            spec: {vault}
+            <br />
+            code: {code}
           </div>
         </div>
 
@@ -97,16 +103,22 @@ export function RunTab({ project, secrets }: Props): JSX.Element {
   );
 }
 
-function buildSystemPrompt(project: ProjectRecord, conventions: string): string {
+function buildSystemPrompt(
+  project: ProjectRecord,
+  vault: string,
+  code: string,
+  conventions: string
+): string {
   return [
     `You are an AI engineer working on the project "${project.name}".`,
-    `Working directory: ${project.localPath}`,
-    `Vault backend: ${project.backend.kind}`,
+    `Spec directory (read-only Obsidian vault): ${vault}`,
+    `Code directory (your working area): ${code}`,
     `Deploy target: ${project.deploy.target}`,
     "",
-    "The project's specs and design notes live in this directory as Obsidian markdown files.",
+    "Specs and design notes are markdown files in the spec directory.",
     "Treat [[wikilinks]] as references to other notes; resolve them by reading the linked file.",
-    "When asked to implement, edit files in the working directory and explain what you did.",
+    "All code edits must happen in the code directory, not the spec directory.",
+    "When asked to implement, write or edit files under the code directory and explain what you did.",
     "",
     conventions ? `Project conventions:\n\n${conventions}` : "No project-specific conventions provided.",
   ].join("\n");

@@ -5,7 +5,7 @@ import {
   GetObjectCommand,
   DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
-import { FileEntry, S3Config, StorageBackend } from "../types";
+import { DOGENT_VAULT_SUBDIR, FileEntry, S3Config, StorageBackend } from "../types";
 
 export class S3Backend implements StorageBackend {
   readonly kind = "s3" as const;
@@ -69,11 +69,7 @@ export class S3Backend implements StorageBackend {
   }
 
   private normalizedPrefix(): string {
-    let p = this.config.prefix.trim();
-    if (p === "" || p === "/") return "";
-    if (p.startsWith("/")) p = p.slice(1);
-    if (!p.endsWith("/")) p += "/";
-    return p;
+    return `${DOGENT_VAULT_SUBDIR}/`;
   }
 
   private async listKeys(prefix: string): Promise<string[]> {

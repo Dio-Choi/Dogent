@@ -241,15 +241,6 @@ export class DogentVaultSettingTab extends PluginSettingTab {
       })
     );
     new Setting(el)
-      .setName("Path inside repo")
-      .setDesc("Leave empty for repo root. Example: vault/")
-      .addText((t) =>
-        t.setValue(cfg.pathInRepo).onChange(async (v) => {
-          cfg.pathInRepo = v.trim();
-          await this.plugin.saveSettings();
-        })
-      );
-    new Setting(el)
       .setName("Personal Access Token")
       .setDesc("GitHub PAT with repo write access. Stored locally in plain text.")
       .addText((t) => {
@@ -302,15 +293,6 @@ export class DogentVaultSettingTab extends PluginSettingTab {
       })
     );
     new Setting(el)
-      .setName("Prefix (folder inside the bucket)")
-      .setDesc("Leave empty for the bucket root. Example: my-vault/")
-      .addText((t) =>
-        t.setValue(cfg.prefix).onChange(async (v) => {
-          cfg.prefix = v.trim();
-          await this.plugin.saveSettings();
-        })
-      );
-    new Setting(el)
       .setName("Custom endpoint (optional)")
       .setDesc("For S3-compatible services like R2, MinIO. Leave empty for AWS.")
       .addText((t) =>
@@ -329,7 +311,6 @@ function blankS3(): S3Config {
     secretAccessKey: "",
     region: "us-east-1",
     bucket: "",
-    prefix: "",
   };
 }
 
@@ -338,10 +319,9 @@ function blankGit(): GitConfig {
     kind: "git",
     repoUrl: "",
     branch: "main",
-    pathInRepo: "",
     token: "",
-    authorName: "Obsidian Multi Sync",
-    authorEmail: "multi-sync@obsidian.local",
+    authorName: "Dogent Vault",
+    authorEmail: "dogent-vault@obsidian.local",
   };
 }
 

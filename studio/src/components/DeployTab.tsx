@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ProjectRecord, SecretsShape } from "@shared/project";
+import { codePath } from "@shared/project";
 
 interface Props {
   project: ProjectRecord;
@@ -32,7 +33,7 @@ export function DeployTab({ project, secrets }: Props): JSX.Element {
       // if the user has them in their shell, or we instruct them to set Settings.
       const _envHint = extraEnv;
       const res = await window.dogent.shell.run({
-        cwd: project.localPath,
+        cwd: codePath(project),
         command: cmd,
         args,
       });

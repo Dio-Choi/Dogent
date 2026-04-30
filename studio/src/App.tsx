@@ -62,7 +62,9 @@ export function App(): JSX.Element {
             onBack={() => setPage({ kind: "list" })}
           />
         )}
-        {page.kind === "settings" && <Settings secrets={secrets} onSave={onSaveSecrets} />}
+        {page.kind === "settings" && (
+          <Settings secrets={secrets} onSave={onSaveSecrets} onBack={() => setPage({ kind: "list" })} />
+        )}
       </main>
     </div>
   );

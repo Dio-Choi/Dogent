@@ -3,7 +3,6 @@ import path from "path";
 import fs from "fs";
 import { runClaude, AnthropicMessage } from "./claude";
 import { runShell } from "./shell";
-import { downloadVault } from "./vault-download";
 import type { ProjectStore, ProjectRecord } from "../shared/project";
 
 const STORE_PATH = path.join(app.getPath("userData"), "projects.json");
@@ -117,10 +116,6 @@ function registerIpc(): void {
     return res.canceled ? null : res.filePaths[0];
   });
 
-  ipcMain.handle("vault:download", async (_e, project: ProjectRecord) => {
-    return await downloadVault(project);
-  });
-
   ipcMain.handle("claude:run", async (e, opts: { apiKey: string; messages: AnthropicMessage[]; system: string; model: string; cwd: string }) => {
     const onChunk = (chunk: string): void => {
       e.sender.send("claude:chunk", chunk);
@@ -141,5 +136,22 @@ function registerIpc(): void {
   ipcMain.handle("fs:readFile", (_e, p: string) => {
     if (!fs.existsSync(p)) return null;
     return fs.readFileSync(p, "utf-8");
+  });
+
+  ipcMain.handle("project:scaffold", (_e, rootPath: string) => {
+    const vault = path.join(rootPath, "vault");
+    const code = path.join(rootPath, "code");
+    fs.mkdirSync(vault, { recursive: true });
+    fs.mkdirSync(code, { recursive: true });
+
+    // Tell Obsidian's vault is at <root>/vault by adding a marker if missing
+    const codeReadme = path.join(code, "README.md");
+    if (!fs.existsSync(codeReadme)) {
+      fs.writeFileSync(
+        codeReadme,
+        "# Code\n\nThis folder is managed by Dogent Studio. AI-generated code lives here.\nThe project's specs live in `../vault`.\n"
+      );
+    }
+    return { vault, code };
   });
 }
